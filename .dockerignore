@@ -1,11 +1,6 @@
-*
-!.env.development
-!.env.production
-!.eslintrc.json
-!.npmrc
-!.prettierrc
-!package.json
-!public/
-!src/
-!tsconfig.json
-!yarn.lock
+.codesandbox
+.github
+.husky
+dev-docs
+firebase-project
+node_modules
