@@ -22,4 +22,4 @@ jobs:
         with:
           context: .
           push: true
-          tags: excalidraw/excalidraw:latest
+          tags: "Ronny-Gallin-Software-Engineering/excalidraw:latest Ronny-Gallin-Software-Engineering/excalidraw:${{github.ref_name}}"
