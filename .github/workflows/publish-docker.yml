@@ -2,8 +2,8 @@ name: Publish Docker
 
 on:
   push:
-    branches:
-      - release
+    tags:
+      - '.*'
 
 jobs:
   publish-docker:
