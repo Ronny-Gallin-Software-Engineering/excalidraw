@@ -1,10 +1,10 @@
 import React from "react";
-import { PlusPromoIcon } from "../../src/components/icons";
-import { MainMenu } from "../../src/packages/excalidraw/index";
+import { PlusPromoIcon } from "../../packages/excalidraw/components/icons";
+import { MainMenu } from "../../packages/excalidraw/index";
 import { LanguageList } from "./LanguageList";
 
 export const AppMainMenu: React.FC<{
-  setCollabDialogShown: (toggle: boolean) => any;
+  onCollabDialogOpen: () => any;
   isCollaborating: boolean;
   isCollabEnabled: boolean;
 }> = React.memo((props) => {
@@ -17,10 +17,10 @@ export const AppMainMenu: React.FC<{
       {props.isCollabEnabled && (
         <MainMenu.DefaultItems.LiveCollaborationTrigger
           isCollaborating={props.isCollaborating}
-          onSelect={() => props.setCollabDialogShown(true)}
+          onSelect={() => props.onCollabDialogOpen()}
         />
       )}
-
+      <MainMenu.DefaultItems.CommandPalette />
       <MainMenu.DefaultItems.Help />
       <MainMenu.DefaultItems.ClearCanvas />
       <MainMenu.Separator />

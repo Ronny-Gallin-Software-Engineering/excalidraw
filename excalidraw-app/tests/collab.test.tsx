@@ -1,8 +1,14 @@
 import { vi } from "vitest";
-import { render, updateSceneData, waitFor } from "../../src/tests/test-utils";
-import ExcalidrawApp from "../../excalidraw-app";
-import { API } from "../../src/tests/helpers/api";
-import { createUndoAction } from "../../src/actions/actionHistory";
+import {
+  render,
+  updateSceneData,
+  waitFor,
+} from "../../packages/excalidraw/tests/test-utils";
+import ExcalidrawApp from "../App";
+import { API } from "../../packages/excalidraw/tests/helpers/api";
+import { createUndoAction } from "../../packages/excalidraw/actions/actionHistory";
+import { syncInvalidIndices } from "../../packages/excalidraw/fractionalIndex";
+
 const { h } = window;
 
 Object.defineProperty(window, "crypto", {
@@ -14,17 +20,6 @@ Object.defineProperty(window, "crypto", {
       exportKey: () => ({ k: "sTdLvMC_M3V8_vGa3UVRDg" }),
     },
   },
-});
-
-vi.mock("../../excalidraw-app/data/index.ts", async (importActual) => {
-  const module = (await importActual()) as any;
-  return {
-    __esmodule: true,
-    ...module,
-    getCollabServer: vi.fn(() => ({
-      url: /* doesn't really matter */ "http://localhost:3002",
-    })),
-  };
 });
 
 vi.mock("../../excalidraw-app/data/firebase.ts", () => {
@@ -68,14 +63,14 @@ describe("collaboration", () => {
     await render(<ExcalidrawApp />);
     // To update the scene with deleted elements before starting collab
     updateSceneData({
-      elements: [
+      elements: syncInvalidIndices([
         API.createElement({ type: "rectangle", id: "A" }),
         API.createElement({
           type: "rectangle",
           id: "B",
           isDeleted: true,
         }),
-      ],
+      ]),
     });
     await waitFor(() => {
       expect(h.elements).toEqual([
