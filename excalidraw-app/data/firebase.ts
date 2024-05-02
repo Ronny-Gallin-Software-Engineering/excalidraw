@@ -26,11 +26,28 @@ import {
   RemoteExcalidrawElement,
   reconcileElements,
 } from "../../packages/excalidraw/data/reconcile";
+import { MongoDBDatastore } from "./mongo-db-datastore";
 
 // private
 // -----------------------------------------------------------------------------
 
+const isCouch = (): boolean => {
+  const url = import.meta.env.VITE_APP_COUCH_URL;
+
+  const result = typeof url === "string" && url.length > 0;
+
+  console.info(`is couch configurted? ${result}`);
+
+  return result;
+};
+const couch = isCouch();
+let mongoClient: MongoDBDatastore;
+if (couch) {
+  mongoClient = new MongoDBDatastore(import.meta.env);
+}
+
 let FIREBASE_CONFIG: Record<string, any>;
+
 try {
   FIREBASE_CONFIG = JSON.parse(import.meta.env.VITE_APP_FIREBASE_CONFIG);
 } catch (error: any) {
@@ -159,6 +176,10 @@ export const isSavedToFirebase = (
   portal: Portal,
   elements: readonly ExcalidrawElement[],
 ): boolean => {
+  if (couch) {
+    return mongoClient.isSavedToFirebase(portal, elements);
+  }
+
   if (portal.socket && portal.roomId && portal.roomKey) {
     const sceneVersion = getSceneVersion(elements);
 
@@ -176,6 +197,10 @@ export const saveFilesToFirebase = async ({
   prefix: string;
   files: { id: FileId; buffer: Uint8Array }[];
 }) => {
+  if (couch) {
+    return mongoClient.saveFilesToFirebase(prefix, files);
+  }
+
   const firebase = await loadFirebaseStorage();
 
   const erroredFiles = new Map<FileId, true>();
@@ -226,6 +251,10 @@ export const saveToFirebase = async (
   elements: readonly SyncableExcalidrawElement[],
   appState: AppState,
 ) => {
+  if (couch) {
+    return mongoClient.saveToFirebase(portal, elements, appState);
+  }
+
   const { roomId, roomKey, socket } = portal;
   if (
     // bail if no room exists as there's nothing we can do at this point
@@ -295,6 +324,10 @@ export const loadFromFirebase = async (
   roomKey: string,
   socket: Socket | null,
 ): Promise<readonly SyncableExcalidrawElement[] | null> => {
+  if (couch) {
+    return mongoClient.loadFromFirebase(roomId, roomKey, socket);
+  }
+
   const firebase = await loadFirestore();
   const db = firebase.firestore();
 
@@ -320,6 +353,10 @@ export const loadFilesFromFirebase = async (
   decryptionKey: string,
   filesIds: readonly FileId[],
 ) => {
+  if (couch) {
+    return mongoClient.loadFilesFromFirebase(prefix, decryptionKey, filesIds);
+  }
+
   const loadedFiles: BinaryFileData[] = [];
   const erroredFiles = new Map<FileId, true>();
 

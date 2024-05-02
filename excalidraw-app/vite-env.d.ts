@@ -39,6 +39,10 @@ interface ImportMetaEnv {
 
   DEV: string;
   PROD: string;
+
+  VITE_APP_COUCH_URL: string;
+  VITE_APP_COUCH_USER: string;
+  VITE_APP_COUCH_PASSWORD: string;
 }
 
 interface ImportMeta {
