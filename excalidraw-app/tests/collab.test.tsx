@@ -27,7 +27,7 @@ vi.mock("../../excalidraw-app/data/index.ts", async (importActual) => {
   };
 });
 
-vi.mock("../../excalidraw-app/data/firebase.ts", () => {
+vi.mock("../../excalidraw-app/data/datastore.ts", () => {
   const loadFromFirebase = async () => null;
   const saveToFirebase = () => {};
   const isSavedToFirebase = () => true;
