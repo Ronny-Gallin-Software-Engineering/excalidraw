@@ -2,7 +2,11 @@ import React from "react";
 import { Card } from "../../packages/excalidraw/components/Card";
 import { ToolButton } from "../../packages/excalidraw/components/ToolButton";
 import { serializeAsJSON } from "../../packages/excalidraw/data/json";
-import { loadFirebaseStorage, saveFilesToFirebase } from "../data/firebase";
+import {
+  isCouch,
+  loadFirebaseStorage,
+  saveFilesToFirebase,
+} from "../data/firebase";
 import {
   FileId,
   NonDeletedExcalidrawElement,
@@ -32,8 +36,6 @@ export const exportToExcalidrawPlus = async (
   files: BinaryFiles,
   name: string,
 ) => {
-  const firebase = await loadFirebaseStorage();
-
   const id = `${nanoid(12)}`;
 
   const encryptionKey = (await generateEncryptionKey())!;
@@ -49,15 +51,19 @@ export const exportToExcalidrawPlus = async (
     },
   );
 
-  await firebase
-    .storage()
-    .ref(`/migrations/scenes/${id}`)
-    .put(blob, {
-      customMetadata: {
-        data: JSON.stringify({ version: 2, name }),
-        created: Date.now().toString(),
-      },
-    });
+  if (!isCouch()) {
+    const firebase = await loadFirebaseStorage();
+
+    await firebase
+      .storage()
+      .ref(`/migrations/scenes/${id}`)
+      .put(blob, {
+        customMetadata: {
+          data: JSON.stringify({ version: 2, name }),
+          created: Date.now().toString(),
+        },
+      });
+  }
 
   const filesMap = new Map<FileId, BinaryFileData>();
   for (const element of elements) {
