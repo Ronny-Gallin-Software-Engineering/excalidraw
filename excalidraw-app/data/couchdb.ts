@@ -8,19 +8,14 @@ import {
   StoredFile,
   StoredScene,
 } from "./couchdb.types";
-import { ExcalidrawElement, FileId } from "../../src/element/types";
-import {
-  AppState,
-  BinaryFileData,
-  BinaryFileMetadata,
-  DataURL,
-} from "../../src/types";
-import { decompressData } from "../../src/data/encode";
-import { MIME_TYPES } from "../../src/constants";
-import { restoreElements } from "../../src/data/restore";
-import { getSceneVersion } from "../../src/element";
-import { reconcileElements } from "../collab/reconciliation";
-import { decryptData, encryptData } from "../../src/data/encryption";
+import { ExcalidrawElement, FileId, OrderedExcalidrawElement } from "../../packages/excalidraw/element/types";
+import { decompressData } from "../../packages/excalidraw/data/encode";
+import { MIME_TYPES } from "../../packages/utils";
+import { hashElementsVersion, reconcileElements, restoreElements } from "../../packages/excalidraw";
+import { decryptData, encryptData } from "../../packages/excalidraw/data/encryption";
+import { AppState, BinaryFileData, BinaryFileMetadata, DataURL } from "../../packages/excalidraw/types";
+import { RemoteExcalidrawElement } from "../../packages/excalidraw/data/reconcile";
+import type { Socket } from "socket.io-client";
 
 export class CouchDbClient {
   private files: PouchDB.Database;
@@ -134,8 +129,8 @@ export class CouchDbClient {
   async loadFromFirebase(
     roomId: string,
     roomKey: string,
-    socket: SocketIOClient.Socket | null,
-  ): Promise<ExcalidrawElement[] | null> {
+    socket: Socket | null,
+  ): Promise<readonly SyncableExcalidrawElement[] | null> {
     const docRef = roomId;
 
     const storedScene = await this.getScene(docRef);
@@ -163,7 +158,7 @@ export class CouchDbClient {
     elements: readonly ExcalidrawElement[],
   ): boolean {
     if (portal.socket && portal.roomId && portal.roomKey) {
-      const sceneVersion = getSceneVersion(elements);
+      const sceneVersion = hashElementsVersion(elements);
       return SceneVersionCache.get(portal.socket) === sceneVersion;
     }
     return true;
@@ -206,7 +201,10 @@ export class CouchDbClient {
         ),
       );
       const reconciledElements = getSyncableElements(
-        reconcileElements(elements, prevStoredElements, appState),
+        reconcileElements(
+          elements,
+          prevStoredElements as OrderedExcalidrawElement[] as RemoteExcalidrawElement[],
+          appState),
       );
       resultScene = await this.createSceneDocument(reconciledElements, roomKey);
 
@@ -228,7 +226,7 @@ export class CouchDbClient {
     elements: readonly SyncableExcalidrawElement[],
     roomKey: string,
   ): Promise<StoredScene> {
-    const sceneVersion = getSceneVersion(elements);
+    const sceneVersion = hashElementsVersion(elements);
     const { ciphertext, iv } = await this.encryptElements(roomKey, elements);
     return {
       sceneVersion,

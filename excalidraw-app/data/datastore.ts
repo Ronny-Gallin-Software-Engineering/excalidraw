@@ -2,11 +2,12 @@
 // -----------------------------------------------------------------------------
 
 import { SyncableExcalidrawElement } from ".";
-import { ExcalidrawElement, FileId } from "../../src/element/types";
-import { AppState } from "../../src/types";
+import { ExcalidrawElement, FileId } from "../../packages/excalidraw/element/types";
+import { AppState } from "../../packages/excalidraw/types";
 import Portal from "../collab/Portal";
 import { CouchDbClient } from "./couchdb";
 import * as firebase from "./firebase";
+import type { Socket } from "socket.io-client";
 
 export const isCouch = (): boolean => {
   const url = import.meta.env.VITE_APP_COUCH_URL;
@@ -67,8 +68,8 @@ export const saveToFirebase = async (
 export const loadFromFirebase = async (
   roomId: string,
   roomKey: string,
-  socket: SocketIOClient.Socket | null,
-): Promise<readonly ExcalidrawElement[] | null> => {
+  socket: Socket | null,
+): Promise<readonly SyncableExcalidrawElement[] | null> => {
   return couch
     ? couchDbClient.loadFromFirebase(roomId, roomKey, socket)
     : firebase.loadFromFirebase(roomId, roomKey, socket);

@@ -81,7 +81,7 @@ import {
 import { updateStaleImageStatuses } from "./data/FileManager";
 import { newElementWith } from "../packages/excalidraw/element/mutateElement";
 import { isInitializedImageElement } from "../packages/excalidraw/element/typeChecks";
-import { loadFilesFromFirebase } from "./data/firebase";
+import { loadFilesFromFirebase } from "./data/datastore";
 import {
   LibraryIndexedDBAdapter,
   LibraryLocalStorageMigrationAdapter,

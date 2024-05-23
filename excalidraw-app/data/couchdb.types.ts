@@ -1,5 +1,6 @@
 import { SyncableExcalidrawElement } from ".";
-import { getSceneVersion } from "../../src/element";
+import type { Socket } from "socket.io-client";
+import { hashElementsVersion } from "../../packages/excalidraw";
 
 export interface StoredScene {
   sceneVersion: number;
@@ -18,15 +19,15 @@ export interface StoredFile {
 }
 
 export class SceneVersionCache {
-  private static cache = new WeakMap<SocketIOClient.Socket, number>();
-  static readonly get = (socket: SocketIOClient.Socket) => {
+  private static cache = new WeakMap<Socket, number>();
+  static readonly get = (socket: Socket) => {
     return SceneVersionCache.cache.get(socket);
   };
   static readonly set = (
-    socket: SocketIOClient.Socket,
+    socket: Socket,
     elements: readonly SyncableExcalidrawElement[],
   ) => {
-    SceneVersionCache.cache.set(socket, getSceneVersion(elements));
+    SceneVersionCache.cache.set(socket, hashElementsVersion(elements));
   };
 }
 
