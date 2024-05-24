@@ -195,4 +195,7 @@ export default defineConfig({
     }),
   ],
   publicDir: "../public",
+  define: {
+    global: "window"
+  }
 });

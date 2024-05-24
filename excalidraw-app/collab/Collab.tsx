@@ -51,7 +51,7 @@ import {
   loadFromFirebase,
   saveFilesToFirebase,
   saveToFirebase,
-} from "../data/firebase";
+} from "../data/datastore";
 import {
   importUsernameFromLocalStorage,
   saveUsernameToLocalStorage,
