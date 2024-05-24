@@ -2,7 +2,7 @@ import React from "react";
 import { Card } from "../../packages/excalidraw/components/Card";
 import { ToolButton } from "../../packages/excalidraw/components/ToolButton";
 import { serializeAsJSON } from "../../packages/excalidraw/data/json";
-import { loadFirebaseStorage, saveFilesToFirebase } from "../data/firebase";
+import { loadFirebaseStorage, saveFilesToFirebase } from "../data/datastore";
 import {
   FileId,
   NonDeletedExcalidrawElement,
